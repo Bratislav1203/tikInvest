@@ -39,7 +39,7 @@ export default function About() {
           <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-lg opacity-20 blur-xl"></div>
             <img
-              src="/public/oProjektu.jpeg"
+              src="oProjektu.jpeg"
               alt="Building perspective"
               className="relative rounded-lg shadow-2xl w-full h-[500px] object-cover"
             />

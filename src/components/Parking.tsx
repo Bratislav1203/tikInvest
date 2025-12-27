@@ -48,7 +48,7 @@ export default function Parking() {
           <div>
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <img
-                src="/public/stanovi/parking.jpeg"
+                src="stanovi/parking.jpeg"
                 alt="Parking layout"
                 className="w-full h-[500px] object-cover"
               />

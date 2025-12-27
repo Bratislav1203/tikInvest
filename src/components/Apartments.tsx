@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 
 export default function FloorPlan() {
-    const PLAN_IMAGE = "/stanovi/sviStanovi.jpeg";
+    const PLAN_IMAGE = "stanovi/sviStanovi.jpeg";
 
     // Globalni pomeraj overlay-a (fino podešavanje)
     const Y_OFFSET = -12;
@@ -12,37 +12,37 @@ export default function FloorPlan() {
             {
                 id: "stan1",
                 label: "Stan 1",
-                image: "/stanovi/1.png",
+                image: "stanovi/1.png",
                 coords: [453, 520, 554, 524, 551, 304, 508, 297, 508, 314, 369, 318, 369, 354, 453, 355]
             },
             {
                 id: "stan2",
                 label: "Stan 2",
-                image: "/stanovi/2.png",
+                image: "stanovi/2.png",
                 coords: [456, 139, 548, 159, 548, 298, 505, 300, 507, 319, 475, 316, 475, 282, 454, 283]
             },
             {
                 id: "stan3",
                 label: "Stan 3",
-                image: "/stanovi/3.png",
+                image: "stanovi/3.png",
                 coords: [299, 95, 300, 214, 342, 219, 342, 281, 453, 281, 453, 133]
             },
             {
                 id: "stan4",
                 label: "Stan 4",
-                image: "/stanovi/4.png",
+                image: "stanovi/4.png",
                 coords: [73, 18, 55, 75, 81, 86, 79, 102, 200, 143, 202, 181, 202, 213, 292, 217, 297, 85]
             },
             {
                 id: "stan5",
                 label: "Stan 5",
-                image: "/stanovi/5.png",
+                image: "stanovi/5.png",
                 coords: [78, 109, 197, 146, 199, 214, 264, 219, 264, 284, 201, 284, 202, 249, 25, 251, 32, 182, 61, 182]
             },
             {
                 id: "stan6",
                 label: "Stan 6",
-                image: "/stanovi/6.png",
+                image: "stanovi/6.png",
                 coords: [55, 255, 196, 254, 194, 287, 259, 291, 260, 356, 206, 358, 205, 387, 17, 389, 19, 331, 47, 330]
             }
         ],

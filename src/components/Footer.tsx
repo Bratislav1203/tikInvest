@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <img
-                src="/logo.png"
+                src="logo.png"
                 alt="Tik Invest"
                 className="h-20 w-auto"
             />

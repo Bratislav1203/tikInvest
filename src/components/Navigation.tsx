@@ -28,7 +28,7 @@ export default function Navigation() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <img
-              src="/logo-black.png"
+              src="logo-black.png"
               alt="Tik Invest"
               className="h-20 w-auto"
             />

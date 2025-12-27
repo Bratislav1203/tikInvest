@@ -14,7 +14,7 @@ export default function Hero() {
       <div className="relative z-10 text-center text-white px-4">
         <div className="mb-8">
           <img
-            src="/logo.png"
+            src="logo.png"
             alt="Tik Invest"
             className="logo h-40 w-auto mx-auto mb-6 drop-shadow-lg"
           />
