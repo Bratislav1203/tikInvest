@@ -1,0 +1,25 @@
+@font-face {
+    font-family: "Bahnschrift";
+    src: url("public/fonts/Bahnschrift.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+/* Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: "Bahnschrift", sans-serif;
+        font-weight: 300;
+    }
+}
+
+/* OSTALO NE DIRAMO */
+@layer components {
+    .logo {
+        height: 12rem !important; /* ostavljam kako si tražio */
+    }
+}
