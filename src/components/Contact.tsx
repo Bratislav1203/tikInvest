@@ -24,7 +24,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 bg-surface-dark">
+    <section id="contact" className="py-24 bg-surface-dark overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <RevealOnScroll>

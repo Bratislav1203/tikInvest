@@ -21,7 +21,7 @@ export default function Location() {
   ];
 
   return (
-    <section id="location" className="py-24 bg-surface-dark relative">
+    <section id="location" className="py-24 bg-surface-dark relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
           <div className="md:w-1/2">

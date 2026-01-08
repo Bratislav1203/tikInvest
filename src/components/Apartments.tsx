@@ -86,7 +86,7 @@ export default function FloorPlan() {
 
     return (
         <>
-            <section id="apartments" className="py-24 bg-surface">
+            <section id="apartments" className="py-24 bg-surface overflow-hidden">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <RevealOnScroll>
