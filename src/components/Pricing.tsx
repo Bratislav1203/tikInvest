@@ -1,4 +1,4 @@
-import { Euro, Check, Building2, FileText, Landmark, Scale } from 'lucide-react';
+import { Euro, Building2, FileText, Landmark, Scale } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
 export default function Pricing() {
@@ -57,21 +57,7 @@ export default function Pricing() {
                   ))}
                 </div>
 
-                <div className="bg-surface-dark/10 backdrop-blur-md rounded-xl p-6 border border-white/5">
-                  <div className="flex items-start gap-4">
-                    <div className="mt-1">
-                      <Check size={24} className="text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-medium text-white mb-1">
-                        Specijalna pogodnost
-                      </p>
-                      <p className="text-slate-300 text-sm">
-                        <strong>Garaža uz veće stanove</strong> – obezbedite kompletan komfor kupovinom većih stambenih jedinica.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {/* Removed "Specijalna pogodnost" block as per user request */}
               </div>
             </RevealOnScroll>
           </div>
