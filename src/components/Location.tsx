@@ -1,4 +1,4 @@
-import { MapPin, Wifi, ShoppingBag, ArrowRight } from 'lucide-react';
+import { MapPin, Wifi, ShoppingBag } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
 export default function Location() {
@@ -58,7 +58,7 @@ export default function Location() {
                     </p>
                   </div>
 
-                  <ArrowRight className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0" size={20} />
+                  {/* Arrow removed as per user request */}
                 </div>
               </RevealOnScroll>
             ))}

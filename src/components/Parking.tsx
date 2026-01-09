@@ -1,4 +1,4 @@
-import { Car, ParkingSquare, Check, ShieldCheck } from 'lucide-react';
+import { Car } from 'lucide-react';
 
 export default function Parking() {
   return (
@@ -10,8 +10,9 @@ export default function Parking() {
           </h2>
           <div className="w-24 h-1 bg-secondary mx-auto mb-6"></div>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Bezbednost vašeg vozila je naš prioritet. Obezbeđen parking prostor za svaki stan.
+            Bezbednost vašeg vozila je naš prioritet.
           </p>
+
         </div>
 
         <div className="grid md:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
@@ -28,42 +29,37 @@ export default function Parking() {
                   <div className="p-3 bg-secondary/10 rounded-xl">
                     <Car size={32} className="text-secondary" />
                   </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-primary mb-1">12 Garažnih mesta</h4>
-                    <p className="text-slate-500 text-sm">Smeštena u suterenu objekta, zaštićena od vremenskih uslova.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-secondary/10 rounded-xl">
-                    <ParkingSquare size={32} className="text-secondary" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-primary mb-1">12 Spoljašnjih mesta</h4>
-                    <p className="text-slate-500 text-sm">Privatni parking u dvorištu objekta.</p>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-bold text-primary mb-3">Ukupno 21 parking mesto</h4>
+                    <ul className="space-y-3">
+                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
+                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                        <span className="font-medium text-slate-700">4 Zasebne garaže</span>
+                      </li>
+                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
+                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                        <span className="font-medium text-slate-700">13 Garažnih mesta</span>
+                        <span className="text-xs text-slate-500 ml-auto">(unutra)</span>
+                      </li>
+                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
+                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                        <span className="font-medium text-slate-700">4 Spoljašnja mesta</span>
+                        <span className="text-xs text-slate-500 ml-auto">(napolju)</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-accent/5 border border-accent/20 p-6 rounded-xl flex items-start gap-4">
-              <div className="p-2 bg-accent/10 rounded-full flex-shrink-0">
-                <ShieldCheck size={24} className="text-accent" />
-              </div>
-              <div>
-                <h4 className="font-bold text-primary mb-1">Zagarantovano mesto</h4>
-                <p className="text-slate-600 text-sm">
-                  Uz svaki stan dolazi <span className="font-semibold text-accent-dark">jedno parking mesto</span>. Bez brige o parkiranju nakon napornog dana.
-                </p>
-              </div>
-            </div>
+            {/* Removed "Zagarantovano mesto" as per user request (21 spots for 28 apartments) */}
           </div>
 
           <div className="relative group perspective">
             <div className="absolute -inset-4 bg-secondary/20 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="relative rounded-2xl overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.01]">
               <img
-                src="stanovi/parking.jpeg"
+                src="stanovi/garaza.png"
                 alt="Parking layout"
                 className="w-full h-[500px] object-cover"
               />

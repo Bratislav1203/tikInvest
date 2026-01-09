@@ -3,9 +3,9 @@ import RevealOnScroll from './RevealOnScroll';
 
 export default function About() {
   const features = [
-    { icon: Building2, label: '24 stana', description: 'Različite strukture' },
+    { icon: Building2, label: '28 stanova', description: 'Različite strukture' },
     { icon: ArrowUpDown, label: 'Lift', description: 'Na svim spratovima' },
-    { icon: Car, label: 'Garaža', description: '12 garažnih mesta' },
+    { icon: Car, label: 'Garaža', description: 'Garažna i parking mesta' },
     { icon: Package, label: 'Podrumi', description: 'Uz svaki stan' }
   ];
 
@@ -26,7 +26,7 @@ export default function About() {
                 kvalitet gradnje i dugoročnu vrednost.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed mb-10 font-light">
-                Objekat se sastoji od ukupno <strong className="text-primary font-medium">24 stana</strong> različitih struktura, sa liftom
+                Objekat se sastoji od ukupno <strong className="text-primary font-medium">28 stanova</strong> različitih struktura, sa liftom
                 koji povezuje sve etaže, garažnim mestima u suterenu, kao i parkingom na otvorenom.
               </p>
 

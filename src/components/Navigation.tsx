@@ -65,7 +65,7 @@ export default function Navigation() {
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full hover:bg-primary-light transition-all duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg font-medium text-sm"
             >
               <Phone size={16} />
-              <span>Pozzovite nas</span>
+              <span>Pozovite nas</span>
             </button>
           </div>
 

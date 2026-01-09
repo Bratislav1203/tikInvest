@@ -28,7 +28,7 @@ export default function Hero() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-slate-300 text-base md:text-xl font-light mb-8 md:mb-12 tracking-wide">
-          Vaš novi dom uz reku, gde se udobnost susreće sa modernim dizajnom.
+          Vaš novi dom, gde se udobnost susreće sa modernim dizajnom.
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8">
