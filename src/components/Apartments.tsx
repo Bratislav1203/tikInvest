@@ -1,57 +1,47 @@
 import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { X, ArrowRight, Layers } from "lucide-react";
 import RevealOnScroll from "./RevealOnScroll";
 
-export default function FloorPlan() {
-    const PLAN_IMAGE = "stanovi/sviStanovi.jpeg";
+import apartmentsData from "../data/apartments.json";
 
-    // Globalni pomeraj overlay-a (fino podešavanje)
+// Types for the new data structure
+type FloorType = 'ground' | 'upper';
+
+interface Room {
+    name: string;
+    area: string;
+}
+
+interface Apartment {
+    id: string;
+    label: string;
+    floor: string;
+    size: string;
+    net_area?: string;
+    rooms?: Room[];
+    image: string; // Now a direct string filename in JSON
+    coords: {
+        ground?: number[];
+        upper?: number[];
+    };
+}
+
+export default function FloorPlan() {
+    const [activeFloor, setActiveFloor] = useState<FloorType>('ground');
+
+    // Main floor plan images
+    const FLOOR_IMAGES = {
+        ground: "stanovi/prizemlje.png",
+        upper: "stanovi/sprat.png"
+    };
+
+    // Global offset for overlay adjustment (if needed)
     const Y_OFFSET = -12;
 
-    const apartments = useMemo(
-        () => [
-            {
-                id: "stan1",
-                label: "Stan 1",
-                image: "stanovi/1.png",
-                coords: [453, 520, 554, 524, 551, 304, 508, 297, 508, 314, 369, 318, 369, 354, 453, 355]
-            },
-            {
-                id: "stan2",
-                label: "Stan 2",
-                image: "stanovi/2.png",
-                coords: [456, 139, 548, 159, 548, 298, 505, 300, 507, 319, 475, 316, 475, 282, 454, 283]
-            },
-            {
-                id: "stan3",
-                label: "Stan 3",
-                image: "stanovi/3.png",
-                coords: [299, 95, 300, 214, 342, 219, 342, 281, 453, 281, 453, 133]
-            },
-            {
-                id: "stan4",
-                label: "Stan 4",
-                image: "stanovi/4.png",
-                coords: [73, 18, 55, 75, 81, 86, 79, 102, 200, 143, 202, 181, 202, 213, 292, 217, 297, 85]
-            },
-            {
-                id: "stan5",
-                label: "Stan 5",
-                image: "stanovi/5.png",
-                coords: [78, 109, 197, 146, 199, 214, 264, 219, 264, 284, 201, 284, 202, 249, 25, 251, 32, 182, 61, 182]
-            },
-            {
-                id: "stan6",
-                label: "Stan 6",
-                image: "stanovi/6.png",
-                coords: [55, 255, 196, 254, 194, 287, 259, 291, 260, 356, 206, 358, 205, 387, 17, 389, 19, 331, 47, 330]
-            }
-        ],
-        []
-    );
+    const apartments = useMemo(() => apartmentsData as Apartment[], []);
 
     const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const [selected, setSelected] = useState<typeof apartments[0] | null>(null);
+    const [selected, setSelected] = useState<Apartment | null>(null);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -69,20 +59,62 @@ export default function FloorPlan() {
         return pts.join(" ");
     };
 
-    const centroid = (coords: number[]) => {
-        let x = 0;
-        let y = 0;
-        const n = coords.length / 2;
-        for (let i = 0; i < coords.length; i += 2) {
-            x += coords[i];
-            y += coords[i + 1] + Y_OFFSET;
+    const getLabelPosition = (apt: Apartment, currentCoords: number[]) => {
+        // Special case for Stan 8: use Stan 1's position (from Ground floor)
+        if (apt.id === 'stan8') {
+            const stan1 = apartments.find(a => a.id === 'stan1');
+            if (stan1 && stan1.coords.ground) {
+                return getBoundingBoxCenter(stan1.coords.ground);
+            }
         }
-        return { x: x / n, y: y / n };
+
+        return getBoundingBoxCenter(currentCoords);
     };
+
+    const getBoundingBoxCenter = (coords: number[]) => {
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+
+        for (let i = 0; i < coords.length; i += 2) {
+            const x = coords[i];
+            const y = coords[i + 1];
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+
+        return {
+            x: (minX + maxX) / 2,
+            y: ((minY + maxY) / 2) + Y_OFFSET
+        };
+    };
+
+    // Filter apartments that are visible on the current active floor
+    const visibleApartments = apartments.filter(apt =>
+        apt.coords && apt.coords[activeFloor] !== undefined
+    );
 
     const hovered = hoveredId
         ? apartments.find((a) => a.id === hoveredId)
         : null;
+
+    // Helper to get apartment image based on context
+    const getApartmentImage = (apt: Apartment) => {
+        if (apt.image) return `stanovi/${apt.image}`;
+        return "";
+    };
+
+    // ... (rendering logic same until modal) ...
+
+    /* Note: I am not replacing the big SVG rendering block here, assuming it stays same. 
+       I will only use replace_file_content on the interfaces (top) and the modal (bottom).
+       BUT since replace_file_content replaces a single block, I have to be careful.
+       The user asked to update interfaces AND modal. They are far apart in file.
+       I should use MULTI_replace or two calls.
+       The prompt guidelines say: "To edit multiple, non-adjacent lines... make a single call to [multi_replace]".
+       I will use multi_replace.
+    */
 
     return (
         <>
@@ -95,89 +127,152 @@ export default function FloorPlan() {
                             </h2>
                             <div className="w-24 h-1 bg-secondary mx-auto mb-6"></div>
                             <p className="text-lg text-slate-600 max-w-2xl mx-auto font-light">
-                                Interaktivni prikaz dostupnih stambenih jedinica. <br />
-                                <span className="text-secondary font-medium">Pređite mišem</span> preko stana za pregled, <span className="text-secondary font-medium">kliknite</span> za detalje.
+                                Odaberite nivo i istražite dostupne stanove. <br />
+                                <span className="text-secondary font-medium">Kliknite na stan</span> za više detalja i pregled osnove.
                             </p>
                         </RevealOnScroll>
                     </div>
 
                     <div className="max-w-5xl mx-auto">
                         <RevealOnScroll delay={200} direction="up">
+                            {/* Floor Toggle Controls */}
+                            <div className="flex justify-center mb-8">
+                                <div className="bg-white p-1 rounded-full shadow-lg border border-slate-100 flex items-center">
+                                    <button
+                                        onClick={() => setActiveFloor('ground')}
+                                        className={`px-6 py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeFloor === 'ground'
+                                            ? 'bg-primary text-white shadow-md'
+                                            : 'text-slate-500 hover:text-primary hover:bg-slate-50'
+                                            }`}
+                                    >
+                                        <Layers size={18} />
+                                        Prizemlje
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveFloor('upper')}
+                                        className={`px-6 py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeFloor === 'upper'
+                                            ? 'bg-primary text-white shadow-md'
+                                            : 'text-slate-500 hover:text-primary hover:bg-slate-50'
+                                            }`}
+                                    >
+                                        <Layers size={18} className="rotate-180" />
+                                        Sprat
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white border border-slate-100 transform transition-all duration-300 hover:shadow-3xl">
-                                <img
-                                    src={PLAN_IMAGE}
-                                    alt="Raspored stanova"
-                                    className="w-full h-auto block"
-                                />
+                                {/* Dynamic Background Image */}
+                                <div className="relative aspect-[554/524] w-full">
+                                    <img
+                                        src={FLOOR_IMAGES[activeFloor]}
+                                        alt={`Prikaz ${activeFloor === 'ground' ? 'prizemlja' : 'sprata'}`}
+                                        className="w-full h-full object-contain block transition-opacity duration-500"
+                                    />
 
-                                <svg
-                                    className="absolute inset-0 w-full h-full"
-                                    viewBox="0 0 554 524"
-                                    preserveAspectRatio="xMidYMid meet"
-                                >
-                                    <defs>
-                                        <filter id="hoverBlur" x="-25%" y="-25%" width="150%" height="150%">
-                                            <feGaussianBlur stdDeviation="5" />
-                                        </filter>
-                                    </defs>
+                                    {/* SVG Overlay */}
+                                    <svg
+                                        className="absolute inset-0 w-full h-full"
+                                        viewBox="0 0 554 524"
+                                        preserveAspectRatio="xMidYMid meet"
+                                    >
+                                        <defs>
+                                            <filter id="hoverBlur" x="-25%" y="-25%" width="150%" height="150%">
+                                                <feGaussianBlur stdDeviation="5" />
+                                            </filter>
+                                            <radialGradient id="apartmentHoverGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                                <stop offset="0%" stopColor="rgb(250, 204, 21)" stopOpacity="0.5" /> {/* yellow-400 (Golden) */}
+                                                <stop offset="60%" stopColor="rgb(250, 204, 21)" stopOpacity="0.15" />
+                                                <stop offset="100%" stopColor="rgb(250, 204, 21)" stopOpacity="0" />
+                                            </radialGradient>
+                                        </defs>
 
-                                    {apartments.map((apt) => {
-                                        const isHovered = hoveredId === apt.id;
-                                        const c = centroid(apt.coords);
+                                        {visibleApartments.map((apt) => {
+                                            const isHovered = hoveredId === apt.id;
+                                            const coords = apt.coords[activeFloor]!; // We filtered for this
 
-                                        return (
-                                            <g
-                                                key={apt.id}
-                                                className="cursor-pointer"
-                                                onMouseEnter={() => setHoveredId(apt.id)}
-                                                onMouseLeave={() => setHoveredId(null)}
-                                                onClick={() => setSelected(apt)}
-                                                style={{
-                                                    transformBox: "fill-box",
-                                                    transformOrigin: "center",
-                                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                                                }}
-                                                transform={isHovered ? "scale(1.02)" : "scale(1)"}
-                                            >
-                                                {/* osnovna granica */}
-                                                <polygon
-                                                    points={coordsToPoints(apt.coords)}
-                                                    className="fill-transparent stroke-primary/10 transition-all duration-300"
-                                                    strokeWidth={isHovered ? "2" : "1"}
-                                                />
+                                            const getAdjustedPosition = () => {
+                                                const pos = getLabelPosition(apt, coords);
+                                                // Shift 'stan1' (and 'stan8' which follows it) slightly right
+                                                if (apt.id === 'stan1' || apt.id === 'stan8') {
+                                                    return { ...pos, x: pos.x + 20 };
+                                                }
+                                                return pos;
+                                            }
+                                            const c = getAdjustedPosition();
 
-                                                {/* suptilan hover */}
-                                                <polygon
-                                                    points={coordsToPoints(apt.coords)}
-                                                    className={`transition-all duration-300 ${isHovered ? "fill-accent/20 stroke-accent" : "fill-transparent stroke-transparent"}`}
-                                                    strokeWidth="2"
-                                                />
+                                            // Strict floor logic check (redundant with filter but explicit for requirements)
+                                            if (apt.id === 'stan1' && activeFloor !== 'ground') return null;
+                                            if (apt.id === 'stan8' && activeFloor !== 'upper') return null;
 
-                                                {/* broj stana */}
-                                                <text
-                                                    x={c.x}
-                                                    y={c.y}
-                                                    textAnchor="middle"
-                                                    dominantBaseline="middle"
-                                                    className={`select-none pointer-events-none font-heading font-bold transition-all duration-300 ${isHovered ? "fill-primary text-xl" : "fill-slate-900/40 text-lg"}`}
+                                            return (
+                                                <g
+                                                    key={apt.id}
+                                                    className="cursor-pointer group"
+                                                    onMouseEnter={() => setHoveredId(apt.id)}
+                                                    onMouseLeave={() => setHoveredId(null)}
+                                                    onClick={() => setSelected(apt)}
+                                                    style={{
+                                                        transformBox: "fill-box",
+                                                        transformOrigin: "center",
+                                                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                                                    }}
+                                                    transform={isHovered ? "scale(1.01)" : "scale(1)"}
                                                 >
-                                                    {apt.label.replace("Stan ", "")}
-                                                </text>
-                                            </g>
-                                        );
-                                    })}
-                                </svg>
+                                                    {/* Hit Area (Base) - invisible but strictly defines the shape */}
+                                                    <polygon
+                                                        points={coordsToPoints(coords)}
+                                                        className="fill-transparent stroke-transparent transition-all duration-300"
+                                                    />
+
+                                                    <polygon
+                                                        points={coordsToPoints(coords)}
+                                                        className="transition-all duration-500 ease-out"
+                                                        style={{
+                                                            fill: isHovered ? "url(#apartmentHoverGradient)" : "transparent",
+                                                            stroke: "transparent",
+                                                            strokeWidth: "0",
+                                                            filter: isHovered ? "drop-shadow(0 0 15px rgba(250, 204, 21, 0.4))" : "none"
+                                                        }}
+                                                    />
+
+                                                    {/* Apartment Label - Only visible on hover or if needed */}
+                                                    <text
+                                                        x={c.x}
+                                                        y={c.y}
+                                                        textAnchor="middle"
+                                                        dominantBaseline="middle"
+                                                        className={`select-none pointer-events-none font-heading font-bold transition-all duration-500 ${isHovered
+                                                            ? "fill-primary text-xl opacity-100"
+                                                            : "fill-slate-900/40 text-lg opacity-0"
+                                                            // Opacity 0 when not hovered makes it cleaner as requested
+                                                            }`}
+                                                    >
+                                                        {apt.label.replace("Stan ", "")}
+                                                    </text>
+                                                </g>
+                                            );
+                                        })}
+                                    </svg>
+                                </div>
 
                                 {hovered && (
-                                    <div className="absolute bottom-6 left-6 animate-fade-in">
+                                    <div className="absolute bottom-6 left-6 animate-fade-in pointer-events-none">
                                         <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-xl shadow-xl border-l-4 border-secondary">
                                             <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Izabrano</div>
                                             <div className="text-2xl font-bold text-primary font-heading">
                                                 {hovered.label}
                                             </div>
+                                            <div className="text-secondary font-medium">
+                                                {hovered.size}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
+                            </div>
+
+                            <div className="text-center mt-6 text-slate-400 text-sm">
+                                * Prikazani nameštaj i oprema su informativnog karaktera
                             </div>
                         </RevealOnScroll>
                     </div>
@@ -187,31 +282,96 @@ export default function FloorPlan() {
             {/* MODAL */}
             {selected && (
                 <div
-                    className="fixed inset-0 z-[60] bg-primary/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+                    className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
                     onClick={() => setSelected(null)}
                 >
                     <div
-                        className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-2 md:p-6 animate-slide-up"
+                        className="relative bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row animate-slide-up"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="absolute z-10 top-4 right-4 p-2 bg-slate-100 rounded-full text-slate-500 hover:text-primary hover:bg-slate-200 transition-all duration-300"
+                            className="absolute z-10 top-4 right-4 p-2 bg-white/80 backdrop-blur rounded-full text-slate-500 hover:text-primary hover:bg-white shadow-sm transition-all duration-300"
                             onClick={() => setSelected(null)}
                         >
                             <X size={24} />
                         </button>
 
-                        <div className="p-4">
-                            <h3 className="text-3xl font-heading font-bold text-primary mb-6 border-b border-slate-100 pb-4">
-                                {selected.label}
-                            </h3>
+                        {/* LEFT: Image */}
+                        <div className="w-full md:w-1/2 bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100">
+                            <img
+                                src={getApartmentImage(selected)}
+                                alt={selected.label}
+                                className="w-full h-auto max-h-[40vh] md:max-h-[70vh] object-contain drop-shadow-xl"
+                            />
+                        </div>
 
-                            <div className="bg-slate-50 rounded-xl p-4 md:p-8 flex items-center justify-center">
-                                <img
-                                    src={selected.image}
-                                    alt={selected.label}
-                                    className="w-full max-h-[70vh] object-contain drop-shadow-lg"
-                                />
+                        {/* RIGHT: Details */}
+                        <div className="w-full md:w-1/2 flex flex-col max-h-[60vh] md:max-h-[90vh]">
+                            {/* Header */}
+                            <div className="p-6 md:p-8 border-b border-slate-100 bg-white sticky top-0 z-10">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-3xl font-heading font-bold text-primary">
+                                        {selected.label}
+                                    </h3>
+                                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-medium uppercase tracking-wider">
+                                        {selected.floor === 'BOTH' ? 'Prizemlje / Sprat' : selected.floor}
+                                    </span>
+                                </div>
+                                <div className="flex gap-6 mt-4">
+                                    <div>
+                                        <div className="text-sm text-slate-400 uppercase tracking-wider font-medium">Ukupno</div>
+                                        <div className="text-2xl font-bold text-slate-700">{selected.size}</div>
+                                    </div>
+                                    {selected.net_area && (
+                                        <div>
+                                            <div className="text-sm text-slate-400 uppercase tracking-wider font-medium">Neto (97%)</div>
+                                            <div className="text-2xl font-bold text-secondary">{selected.net_area}</div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Scrollable Content: Room List */}
+                            <div className="p-6 md:p-8 overflow-y-auto flex-1">
+                                <h4 className="font-heading font-semibold text-lg text-primary mb-4 flex items-center gap-2">
+                                    <Layers size={20} className="text-secondary" />
+                                    Struktura prostorija
+                                </h4>
+
+                                {selected.rooms && (
+                                    <div className="rounded-xl border border-slate-100 overflow-hidden">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="bg-slate-50 text-slate-500 font-medium uppercase tracking-wider text-xs">
+                                                <tr>
+                                                    <th className="px-4 py-3">Prostorija</th>
+                                                    <th className="px-4 py-3 text-right">Površina</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {selected.rooms.map((room, idx) => (
+                                                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-4 py-3 font-medium text-slate-700">{room.name}</td>
+                                                        <td className="px-4 py-3 text-right text-slate-600 font-mono">{room.area}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="p-6 md:p-8 border-t border-slate-100 bg-slate-50 mt-auto">
+                                <button
+                                    onClick={() => {
+                                        setSelected(null);
+                                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="w-full py-4 bg-primary text-white rounded-xl hover:bg-primary-dark transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group font-medium text-lg"
+                                >
+                                    Pošalji upit za ovaj stan
+                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </button>
                             </div>
                         </div>
                     </div>
