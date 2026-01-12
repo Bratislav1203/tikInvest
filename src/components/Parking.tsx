@@ -24,29 +24,58 @@ export default function Parking() {
 
               <h3 className="font-heading text-2xl font-bold text-primary mb-8 relative z-10">Kapaciteti objekta</h3>
 
-              <div className="space-y-6 relative z-10">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-secondary/10 rounded-xl">
-                    <Car size={32} className="text-secondary" />
+              <div className="grid gap-4">
+                {/* VIP Spot Card - Premium Design */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-white p-6 rounded-2xl border border-amber-200 shadow-sm group hover:shadow-md transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-amber-200/20 to-transparent rounded-bl-full -mr-4 -mt-4"></div>
+
+                  <div className="relative z-10">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-3 bg-amber-100/50 rounded-xl border border-amber-100">
+                        <Car size={28} className="text-amber-600" />
+                      </div>
+                      <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200 uppercase tracking-wide whitespace-nowrap">
+                        4 mesta
+                      </span>
+                    </div>
+
+                    <h4 className="font-heading font-bold text-slate-800 text-lg mb-3">VIP Garažna mesta</h4>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-xs font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 whitespace-nowrap">Zasebne jedinice</span>
+                      <span className="text-xs font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 whitespace-nowrap">Ozidano</span>
+                      <span className="text-xs font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 whitespace-nowrap">Rolo vrata</span>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-xl font-bold text-primary mb-3">Ukupno 21 parking mesto</h4>
-                    <ul className="space-y-3">
-                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
-                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                        <span className="font-medium text-slate-700">4 Zasebne garaže</span>
-                      </li>
-                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
-                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                        <span className="font-medium text-slate-700">13 Garažnih mesta</span>
-                        <span className="text-xs text-slate-500 ml-auto">(unutra)</span>
-                      </li>
-                      <li className="flex items-center gap-3 bg-white/50 p-2 rounded-lg border border-slate-100">
-                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                        <span className="font-medium text-slate-700">4 Spoljašnja mesta</span>
-                        <span className="text-xs text-slate-500 ml-auto">(napolju)</span>
-                      </li>
-                    </ul>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Standard Spots Card */}
+                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-2.5 bg-secondary/10 rounded-lg">
+                        <div className="w-5 h-5 rounded-full border-2 border-secondary"></div>
+                      </div>
+                      <span className="bg-slate-50 text-slate-600 text-xs font-bold px-2 py-1 rounded-full border border-slate-100 whitespace-nowrap">
+                        13 mesta
+                      </span>
+                    </div>
+                    <h4 className="font-heading font-bold text-slate-700 text-base mb-1">Standardna garažna</h4>
+                    <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Unutra</p>
+                  </div>
+
+                  {/* Exterior Spots Card */}
+                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-2.5 bg-slate-100 rounded-lg">
+                        <div className="w-5 h-5 rounded-full border-2 border-slate-400"></div>
+                      </div>
+                      <span className="bg-slate-50 text-slate-600 text-xs font-bold px-2 py-1 rounded-full border border-slate-100 whitespace-nowrap">
+                        11 mesta
+                      </span>
+                    </div>
+                    <h4 className="font-heading font-bold text-slate-700 text-base mb-1">Spoljašnja parking</h4>
+                    <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Napolju</p>
                   </div>
                 </div>
               </div>

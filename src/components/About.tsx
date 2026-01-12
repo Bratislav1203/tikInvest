@@ -1,5 +1,6 @@
 import { Building2, ArrowUpDown, Car, Package } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
+import Gallery from './Gallery';
 
 export default function About() {
   const features = [
@@ -49,11 +50,7 @@ export default function About() {
           <div className="relative order-1 md:order-2">
             <RevealOnScroll direction="left" delay={200}>
               <div className="absolute -inset-4 bg-gradient-to-r from-accent to-secondary rounded-2xl opacity-10 blur-2xl"></div>
-              <img
-                src="oProjektu.jpeg"
-                alt="Building perspective"
-                className="relative rounded-2xl shadow-2xl w-full h-[600px] object-cover transform transition-transform duration-700 hover:scale-[1.01]"
-              />
+              <Gallery />
               {/* Decoration */}
               <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-secondary/10 rounded-full blur-xl"></div>
               <div className="absolute -top-6 -right-6 w-32 h-32 bg-primary/5 rounded-full blur-xl"></div>

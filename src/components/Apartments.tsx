@@ -27,12 +27,41 @@ interface Apartment {
 }
 
 export default function FloorPlan() {
-    const [activeFloor, setActiveFloor] = useState<FloorType>('ground');
+    // State for main category (Ground vs Upper)
+    const [activeCategory, setActiveCategory] = useState<'ground' | 'upper'>('ground');
+    // State for specific upper level (1, 2, 3)
+    const [upperLevel, setUpperLevel] = useState<1 | 2 | 3>(1);
 
     // Main floor plan images
     const FLOOR_IMAGES = {
         ground: "stanovi/prizemlje.png",
-        upper: "stanovi/sprat.png"
+        level1: "stanovi/sprat1.png",
+        level2: "stanovi/sprat2.png",
+        level3: "stanovi/sprat3.png"
+    };
+
+    // Current active image based on state
+    const currentImage = activeCategory === 'ground'
+        ? FLOOR_IMAGES.ground
+        : FLOOR_IMAGES[`level${upperLevel}` as keyof typeof FLOOR_IMAGES];
+
+    // Pricing configuration
+    const PRICE_PER_SQM = {
+        ground: 1250,
+        level1: 1350,
+        level2: 1400,
+        level3: 1450
+    };
+
+    // Helper to get current effective price floor key
+    const currentPriceKey = activeCategory === 'ground' ? 'ground' : `level${upperLevel}` as 'level1' | 'level2' | 'level3';
+
+    const getPriceForApartment = (apt: Apartment, floor: keyof typeof PRICE_PER_SQM) => {
+        // Parse size string e.g. "54.20 m²" -> 54.20
+        const sizeNum = parseFloat(apt.size.replace(',', '.').replace(/[^\d.]/g, ''));
+        const pricePerSqm = PRICE_PER_SQM[floor];
+        if (!sizeNum || !pricePerSqm) return null;
+        return (sizeNum * pricePerSqm).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); // Format with . as thousand separator
     };
 
     // Global offset for overlay adjustment (if needed)
@@ -91,8 +120,11 @@ export default function FloorPlan() {
     };
 
     // Filter apartments that are visible on the current active floor
+    // Coordinates key: 'ground' for Ground, 'upper' for ALL upper levels
+    const currentCoordsKey = activeCategory === 'ground' ? 'ground' : 'upper';
+
     const visibleApartments = apartments.filter(apt =>
-        apt.coords && apt.coords[activeFloor] !== undefined
+        apt.coords && apt.coords[currentCoordsKey] !== undefined
     );
 
     const hovered = hoveredId
@@ -135,12 +167,13 @@ export default function FloorPlan() {
 
                     <div className="max-w-5xl mx-auto">
                         <RevealOnScroll delay={200} direction="up">
-                            {/* Floor Toggle Controls */}
-                            <div className="flex justify-center mb-8">
-                                <div className="bg-white p-1 rounded-full shadow-lg border border-slate-100 flex items-center">
+                            {/* Floor Toggle Controls - Hierarchical */}
+                            <div className="flex flex-col items-center gap-6 mb-10">
+                                {/* Primary Level Selection (Prizemlje vs Spratovi) */}
+                                <div className="bg-white p-1.5 rounded-full shadow-lg border border-slate-100 flex items-center">
                                     <button
-                                        onClick={() => setActiveFloor('ground')}
-                                        className={`px-6 py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeFloor === 'ground'
+                                        onClick={() => setActiveCategory('ground')}
+                                        className={`px-6 py-3 rounded-full text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeCategory === 'ground'
                                             ? 'bg-primary text-white shadow-md'
                                             : 'text-slate-500 hover:text-primary hover:bg-slate-50'
                                             }`}
@@ -149,25 +182,57 @@ export default function FloorPlan() {
                                         Prizemlje
                                     </button>
                                     <button
-                                        onClick={() => setActiveFloor('upper')}
-                                        className={`px-6 py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeFloor === 'upper'
+                                        onClick={() => setActiveCategory('upper')}
+                                        className={`px-6 py-3 rounded-full text-base font-medium transition-all duration-300 flex items-center gap-2 ${activeCategory === 'upper'
                                             ? 'bg-primary text-white shadow-md'
                                             : 'text-slate-500 hover:text-primary hover:bg-slate-50'
                                             }`}
                                     >
                                         <Layers size={18} className="rotate-180" />
-                                        Sprat
+                                        Spratovi
                                     </button>
+                                </div>
+
+                                {/* Secondary Level Selection (Specific Floors) - Only visible if 'Upper' is active */}
+                                <div className={`
+                                    transition-all duration-500 ease-in-out overflow-hidden
+                                    ${activeCategory === 'upper' ? 'max-h-20 opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4 pointer-events-none'}
+                                `}>
+                                    <div className="bg-white/80 backdrop-blur-sm p-1.5 rounded-full shadow-sm border border-slate-200/60 flex gap-2">
+                                        {[1, 2, 3].map((level) => (
+                                            <button
+                                                key={level}
+                                                onClick={() => setUpperLevel(level as 1 | 2 | 3)}
+                                                className={`
+                                                    w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-200
+                                                    ${upperLevel === level
+                                                        ? 'bg-secondary text-white shadow-sm transform scale-110'
+                                                        : 'text-slate-500 hover:bg-slate-100'
+                                                    }
+                                                `}
+                                            >
+                                                {level}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Price Info Panel */}
+                            <div className="flex justify-center mb-6">
+                                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-500 font-light">
+                                    <span>Informativna cena:</span>
+                                    <span className="font-medium text-slate-700">{PRICE_PER_SQM[currentPriceKey]} €/m²</span>
+                                    <span className="text-xs text-slate-400 border-l border-slate-200 pl-2 ml-1">bez PDV-a</span>
+                                </div>
+                            </div>
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white border border-slate-100 transform transition-all duration-300 hover:shadow-3xl">
                                 {/* Dynamic Background Image */}
                                 <div className="relative aspect-[554/524] w-full">
                                     <img
-                                        src={FLOOR_IMAGES[activeFloor]}
-                                        alt={`Prikaz ${activeFloor === 'ground' ? 'prizemlja' : 'sprata'}`}
-                                        className="w-full h-full object-contain block transition-opacity duration-500"
+                                        src={currentImage}
+                                        alt={`Prikaz ${activeCategory === 'ground' ? 'prizemlja' : `sprata ${upperLevel}`}`}
+                                        className="w-full h-full object-contain block transition-all duration-500"
                                     />
 
                                     {/* SVG Overlay */}
@@ -189,7 +254,7 @@ export default function FloorPlan() {
 
                                         {visibleApartments.map((apt) => {
                                             const isHovered = hoveredId === apt.id;
-                                            const coords = apt.coords[activeFloor]!; // We filtered for this
+                                            const coords = apt.coords[currentCoordsKey]!; // We filtered for this
 
                                             const getAdjustedPosition = () => {
                                                 const pos = getLabelPosition(apt, coords);
@@ -201,9 +266,22 @@ export default function FloorPlan() {
                                             }
                                             const c = getAdjustedPosition();
 
-                                            // Strict floor logic check (redundant with filter but explicit for requirements)
-                                            if (apt.id === 'stan1' && activeFloor !== 'ground') return null;
-                                            if (apt.id === 'stan8' && activeFloor !== 'upper') return null;
+                                            // Strict floor logic check
+                                            if (apt.id === 'stan1' && activeCategory !== 'ground') return null;
+                                            if (apt.id === 'stan8' && activeCategory !== 'upper') return null;
+
+                                            // Dynamic Numbering Logic
+                                            // Slot Mapping: Stan 1/8 -> 1, Stan 2 -> 2, ..., Stan 7 -> 7
+                                            const getSlotIndex = (id: string) => {
+                                                if (id === 'stan1' || id === 'stan8') return 1;
+                                                const num = parseInt(id.replace('stan', ''));
+                                                return num;
+                                            };
+
+                                            const slotIndex = getSlotIndex(apt.id);
+                                            const displayOffset = activeCategory === 'ground' ? 0 : (upperLevel * 7);
+                                            const displayNumber = slotIndex + displayOffset;
+                                            const displayLabel = `Stan ${displayNumber}`;
 
                                             return (
                                                 <g
@@ -219,12 +297,13 @@ export default function FloorPlan() {
                                                     }}
                                                     transform={isHovered ? "scale(1.01)" : "scale(1)"}
                                                 >
-                                                    {/* Hit Area (Base) - invisible but strictly defines the shape */}
+                                                    {/* Hit Area (Base) */}
                                                     <polygon
                                                         points={coordsToPoints(coords)}
                                                         className="fill-transparent stroke-transparent transition-all duration-300"
                                                     />
 
+                                                    {/* Hover Effect */}
                                                     <polygon
                                                         points={coordsToPoints(coords)}
                                                         className="transition-all duration-500 ease-out"
@@ -248,7 +327,7 @@ export default function FloorPlan() {
                                                             // Opacity 0 when not hovered makes it cleaner as requested
                                                             }`}
                                                     >
-                                                        {apt.label.replace("Stan ", "")}
+                                                        {displayNumber}
                                                     </text>
                                                 </g>
                                             );
@@ -266,6 +345,14 @@ export default function FloorPlan() {
                                             <div className="text-secondary font-medium">
                                                 {hovered.size}
                                             </div>
+                                            {(() => {
+                                                const price = getPriceForApartment(hovered, currentPriceKey);
+                                                return price ? (
+                                                    <div className="text-slate-600 font-medium text-lg mt-1 border-t border-slate-100 pt-1">
+                                                        ≈ {price} €
+                                                    </div>
+                                                ) : null;
+                                            })()}
                                         </div>
                                     </div>
                                 )}
@@ -286,7 +373,7 @@ export default function FloorPlan() {
                     onClick={() => setSelected(null)}
                 >
                     <div
-                        className="relative bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row animate-slide-up"
+                        className="relative bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto md:overflow-hidden flex flex-col md:flex-row animate-slide-up"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
@@ -306,7 +393,7 @@ export default function FloorPlan() {
                         </div>
 
                         {/* RIGHT: Details */}
-                        <div className="w-full md:w-1/2 flex flex-col max-h-[60vh] md:max-h-[90vh]">
+                        <div className="w-full md:w-1/2 flex flex-col h-auto md:h-full md:overflow-y-auto">
                             {/* Header */}
                             <div className="p-6 md:p-8 border-b border-slate-100 bg-white sticky top-0 z-10">
                                 <div className="flex justify-between items-start mb-2">
@@ -328,7 +415,15 @@ export default function FloorPlan() {
                                             <div className="text-2xl font-bold text-secondary">{selected.net_area}</div>
                                         </div>
                                     )}
-                                </div>
+                                    {(() => {
+                                        const price = getPriceForApartment(selected, currentPriceKey);
+                                        return price ? (
+                                            <div>
+                                                <div className="text-sm text-slate-400 uppercase tracking-wider font-medium">Cena</div>
+                                                <div className="text-2xl font-bold text-slate-700">≈ {price} €</div>
+                                            </div>
+                                        ) : null;
+                                    })()}</div>
                             </div>
 
                             {/* Scrollable Content: Room List */}
