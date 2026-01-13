@@ -3,33 +3,33 @@
         "id": "stan1",
         "label": "Stan 1",
         "floor": "PRIZEMLJE",
-        "size": "41.15 m²",
-        "net_area": "40.00 m²",
+        "size": "66.85 m²",
+        "net_area": "64.84 m²",
         "image": "stan1.png",
         "rooms": [
             {
                 "name": "1. Glavni ulaz",
-                "area": "4.14 m²"
+                "area": "4.85 m²"
             },
             {
                 "name": "2. Kuhinja sa trpezarijom i dnevnom sobom",
-                "area": "7.23 m²"
+                "area": "34.55 m²"
             },
             {
                 "name": "3. Hodnik",
-                "area": "6.88 m²"
+                "area": "1.76 m²"
             },
             {
                 "name": "4. Soba",
-                "area": "7.22 m²"
+                "area": "11.69 m²"
             },
             {
                 "name": "5. Soba",
-                "area": "11.00 m²"
+                "area": "7.00 m²"
             },
             {
                 "name": "6. Kupatilo",
-                "area": "4.68 m²"
+                "area": "7.00 m²"
             }
         ],
         "coords": {

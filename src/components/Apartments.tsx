@@ -5,7 +5,6 @@ import RevealOnScroll from "./RevealOnScroll";
 import apartmentsData from "../data/apartments.json";
 
 // Types for the new data structure
-type FloorType = 'ground' | 'upper';
 
 interface Room {
     name: string;
@@ -135,6 +134,16 @@ export default function FloorPlan() {
     const getApartmentImage = (apt: Apartment) => {
         if (apt.image) return `stanovi/${apt.image}`;
         return "";
+    };
+
+    // Calculate dynamic apartment number
+    const getDynamicApartmentNumber = (id: string, category: 'ground' | 'upper', level: number) => {
+        let slotIndex = parseInt(id.replace('stan', ''));
+        // Special mapping: Stan 8 occupies the same slot as Stan 1 but on upper floors
+        if (id === 'stan8') slotIndex = 1;
+
+        const displayOffset = category === 'ground' ? 0 : (level * 7);
+        return slotIndex + displayOffset;
     };
 
     // ... (rendering logic same until modal) ...
@@ -271,17 +280,7 @@ export default function FloorPlan() {
                                             if (apt.id === 'stan8' && activeCategory !== 'upper') return null;
 
                                             // Dynamic Numbering Logic
-                                            // Slot Mapping: Stan 1/8 -> 1, Stan 2 -> 2, ..., Stan 7 -> 7
-                                            const getSlotIndex = (id: string) => {
-                                                if (id === 'stan1' || id === 'stan8') return 1;
-                                                const num = parseInt(id.replace('stan', ''));
-                                                return num;
-                                            };
-
-                                            const slotIndex = getSlotIndex(apt.id);
-                                            const displayOffset = activeCategory === 'ground' ? 0 : (upperLevel * 7);
-                                            const displayNumber = slotIndex + displayOffset;
-                                            const displayLabel = `Stan ${displayNumber}`;
+                                            const displayNumber = getDynamicApartmentNumber(apt.id, activeCategory, upperLevel);
 
                                             return (
                                                 <g
@@ -340,7 +339,7 @@ export default function FloorPlan() {
                                         <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-xl shadow-xl border-l-4 border-secondary">
                                             <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Izabrano</div>
                                             <div className="text-2xl font-bold text-primary font-heading">
-                                                {hovered.label}
+                                                {`Stan ${getDynamicApartmentNumber(hovered.id, activeCategory, upperLevel)}`}
                                             </div>
                                             <div className="text-secondary font-medium">
                                                 {hovered.size}
@@ -398,7 +397,7 @@ export default function FloorPlan() {
                             <div className="p-6 md:p-8 border-b border-slate-100 bg-white sticky top-0 z-10">
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="text-3xl font-heading font-bold text-primary">
-                                        {selected.label}
+                                        {`Stan ${getDynamicApartmentNumber(selected.id, activeCategory, upperLevel)}`}
                                     </h3>
                                     <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-medium uppercase tracking-wider">
                                         {selected.floor === 'BOTH' ? 'Prizemlje / Sprat' : selected.floor}
