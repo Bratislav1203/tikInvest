@@ -74,7 +74,7 @@ export default function Parking() {
                         11 mesta
                       </span>
                     </div>
-                    <h4 className="font-heading font-bold text-slate-700 text-base mb-1">Spoljašnja parking</h4>
+                    <h4 className="font-heading font-bold text-slate-700 text-base mb-1">Spoljašnji parking</h4>
                     <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Napolju</p>
                   </div>
                 </div>
