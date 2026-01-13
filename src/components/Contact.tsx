@@ -184,7 +184,7 @@ export default function Contact() {
               <div className="space-y-6">
                 {[
                   { icon: Phone, title: 'Telefon', value: 'primary', link: 'tel:+381638025795' },
-                  { icon: Mail, title: 'Email', value: 'tikinvest@gmail.com', link: 'mailto:tikinvest@gmail.com' },
+                  { icon: Mail, title: 'Email', value: 'tikinvest07@gmail.com', link: 'mailto:tikinvest07@gmail.com' },
                   { icon: MapPin, title: 'Lokacija', value: 'Raška, Srbija', link: '#location' }
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-6 p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
