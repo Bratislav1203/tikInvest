@@ -50,12 +50,6 @@ export default function Hero() {
 
         <div className="mt-8 md:mt-16 flex flex-col md:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <button
-            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-4 bg-accent hover:bg-accent-dark text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-accent/20"
-          >
-            Zakažite razgledanje
-          </button>
-          <button
             onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
             className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg transition-all duration-300 border border-white/20"
           >

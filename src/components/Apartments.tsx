@@ -23,6 +23,12 @@ interface Apartment {
         ground?: number[];
         upper?: number[];
     };
+    status?: 'available' | 'reserved' | {
+        ground?: 'available' | 'reserved';
+        level1?: 'available' | 'reserved';
+        level2?: 'available' | 'reserved';
+        level3?: 'available' | 'reserved';
+    };
 }
 
 export default function FloorPlan() {
@@ -30,6 +36,8 @@ export default function FloorPlan() {
     const [activeCategory, setActiveCategory] = useState<'ground' | 'upper'>('ground');
     // State for specific upper level (1, 2, 3)
     const [upperLevel, setUpperLevel] = useState<1 | 2 | 3>(1);
+    // State for hiding reserved apartments
+    const [hideReserved, setHideReserved] = useState(false);
 
     // Main floor plan images
     const FLOOR_IMAGES = {
@@ -60,7 +68,7 @@ export default function FloorPlan() {
         const sizeNum = parseFloat(apt.size.replace(',', '.').replace(/[^\d.]/g, ''));
         const pricePerSqm = PRICE_PER_SQM[floor];
         if (!sizeNum || !pricePerSqm) return null;
-        return (sizeNum * pricePerSqm).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); // Format with . as thousand separator
+        return (sizeNum * pricePerSqm).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ','); // Format with , as thousand separator
     };
 
     // Global offset for overlay adjustment (if needed)
@@ -146,6 +154,24 @@ export default function FloorPlan() {
         return slotIndex + displayOffset;
     };
 
+    const getStatusForCurrentLevel = (apt: Apartment) => {
+        if (!apt.status) return 'available';
+
+        // If status is a simple string, it applies globally (legacy/simple support)
+        if (typeof apt.status === 'string') return apt.status;
+
+        // If status is an object, look up specific floor
+        const levelKey = activeCategory === 'ground' ? 'ground' : `level${upperLevel}`;
+        return (apt.status as any)[levelKey] || 'available';
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'reserved': return '#475569'; // slate-600 (Previously used for sold)
+            default: return 'transparent';
+        }
+    };
+
     // ... (rendering logic same until modal) ...
 
     /* Note: I am not replacing the big SVG rendering block here, assuming it stays same. 
@@ -227,11 +253,33 @@ export default function FloorPlan() {
                                 </div>
                             </div>
 
+                            <div className="flex flex-wrap justify-center gap-6 mb-6">
+                                <label className="flex items-center gap-2 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={hideReserved}
+                                        onChange={(e) => setHideReserved(e.target.checked)}
+                                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
+                                    />
+                                    <span className="text-slate-600">Sakrij podatke o rezervisanim stanovima</span>
+                                </label>
+                                <div className="flex gap-4 text-sm">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 rounded-full bg-slate-500"></div>
+                                        <span className="text-slate-600">Rezervisan</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 rounded-full border-2 border-primary"></div>
+                                        <span className="text-slate-600">Slobodan</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Price Info Panel */}
                             <div className="flex justify-center mb-6">
                                 <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-500 font-light">
                                     <span>Informativna cena:</span>
-                                    <span className="font-medium text-slate-700">{PRICE_PER_SQM[currentPriceKey]} €/m²</span>
+                                    <span className="font-medium text-slate-700">{PRICE_PER_SQM[currentPriceKey].toLocaleString('de-DE').replace('.', ',')} €/m²</span>
                                     <span className="text-xs text-slate-400 border-l border-slate-200 pl-2 ml-1">bez PDV-a</span>
                                 </div>
                             </div>
@@ -259,17 +307,24 @@ export default function FloorPlan() {
                                                 <stop offset="60%" stopColor="rgb(250, 204, 21)" stopOpacity="0.15" />
                                                 <stop offset="100%" stopColor="rgb(250, 204, 21)" stopOpacity="0" />
                                             </radialGradient>
+                                            <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                                                <path d="M -1,2 l 6,0" stroke="#cbd5e1" strokeWidth="1" />
+                                                <rect width="8" height="8" fill="transparent" />
+                                            </pattern>
                                         </defs>
 
                                         {visibleApartments.map((apt) => {
                                             const isHovered = hoveredId === apt.id;
                                             const coords = apt.coords[currentCoordsKey]!; // We filtered for this
 
+                                            const status = getStatusForCurrentLevel(apt);
+                                            const isReserved = status === 'reserved' && !hideReserved;
+
                                             const getAdjustedPosition = () => {
                                                 const pos = getLabelPosition(apt, coords);
                                                 // Shift 'stan1' (and 'stan8' which follows it) slightly right
                                                 if (apt.id === 'stan1' || apt.id === 'stan8') {
-                                                    return { ...pos, x: pos.x + 20 };
+                                                    return { ...pos, x: pos.x + 40 };
                                                 }
                                                 return pos;
                                             }
@@ -285,48 +340,76 @@ export default function FloorPlan() {
                                             return (
                                                 <g
                                                     key={apt.id}
-                                                    className="cursor-pointer group"
-                                                    onMouseEnter={() => setHoveredId(apt.id)}
+                                                    className={`group transition-all duration-300 ${isReserved ? 'cursor-not-allowed' : 'cursor-pointer'
+                                                        }`}
+                                                    onMouseEnter={() => !isReserved && setHoveredId(apt.id)}
                                                     onMouseLeave={() => setHoveredId(null)}
-                                                    onClick={() => setSelected(apt)}
+                                                    onClick={() => !isReserved && setSelected(apt)}
                                                     style={{
                                                         transformBox: "fill-box",
                                                         transformOrigin: "center",
                                                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                                                     }}
-                                                    transform={isHovered ? "scale(1.01)" : "scale(1)"}
+                                                    transform={isHovered && !isReserved ? "scale(1.01)" : "scale(1)"}
                                                 >
                                                     {/* Hit Area (Base) */}
                                                     <polygon
                                                         points={coordsToPoints(coords)}
-                                                        className="fill-transparent stroke-transparent transition-all duration-300"
-                                                    />
-
-                                                    {/* Hover Effect */}
-                                                    <polygon
-                                                        points={coordsToPoints(coords)}
-                                                        className="transition-all duration-500 ease-out"
+                                                        className="transition-all duration-300"
                                                         style={{
-                                                            fill: isHovered ? "url(#apartmentHoverGradient)" : "transparent",
-                                                            stroke: "transparent",
-                                                            strokeWidth: "0",
-                                                            filter: isHovered ? "drop-shadow(0 0 15px rgba(250, 204, 21, 0.4))" : "none"
+                                                            fill: isReserved ? 'rgba(71, 85, 105, 0.7)' : 'transparent',
+                                                            stroke: "transparent"
                                                         }}
                                                     />
 
-                                                    {/* Apartment Label - Only visible on hover or if needed */}
+                                                    {/* Pattern Overlay for Reserved */}
+                                                    {isReserved && (
+                                                        <polygon
+                                                            points={coordsToPoints(coords)}
+                                                            style={{ fill: 'url(#diagonalHatch)', pointerEvents: 'none' }}
+                                                        />
+                                                    )}
+
+                                                    {/* Hover Effect - Only for Available */}
+                                                    {!isReserved && (
+                                                        <polygon
+                                                            points={coordsToPoints(coords)}
+                                                            className="transition-all duration-500 ease-out"
+                                                            style={{
+                                                                fill: isHovered ? "url(#apartmentHoverGradient)" : "transparent",
+                                                                stroke: "transparent",
+                                                                strokeWidth: "0",
+                                                                filter: isHovered ? "drop-shadow(0 0 15px rgba(250, 204, 21, 0.4))" : "none"
+                                                            }}
+                                                        />
+                                                    )}
+
+                                                    {/* Status Badge */}
+                                                    {isReserved && (
+                                                        <circle
+                                                            cx={c.x + 15}
+                                                            cy={c.y - 15}
+                                                            r="4"
+                                                            fill="#64748b"
+                                                            className="drop-shadow-sm"
+                                                        />
+                                                    )}
+
+                                                    {/* Apartment Label */}
                                                     <text
                                                         x={c.x}
                                                         y={c.y}
                                                         textAnchor="middle"
                                                         dominantBaseline="middle"
-                                                        className={`select-none pointer-events-none font-heading font-bold transition-all duration-500 ${isHovered
-                                                            ? "fill-primary text-xl opacity-100"
-                                                            : "fill-slate-900/40 text-lg opacity-0"
-                                                            // Opacity 0 when not hovered makes it cleaner as requested
+                                                        transform={isReserved ? `rotate(20 ${c.x} ${c.y})` : undefined}
+                                                        className={`select-none pointer-events-none font-heading font-bold transition-all duration-500 ${isReserved
+                                                            ? "fill-white text-[10px] uppercase tracking-wider opacity-100"
+                                                            : isHovered
+                                                                ? "fill-primary text-xl opacity-100"
+                                                                : "fill-slate-900/40 text-lg opacity-0"
                                                             }`}
                                                     >
-                                                        {displayNumber}
+                                                        {isReserved ? 'REZERVISANO' : displayNumber}
                                                     </text>
                                                 </g>
                                             );
@@ -338,7 +421,7 @@ export default function FloorPlan() {
                                     <div className="absolute bottom-6 left-6 animate-fade-in pointer-events-none">
                                         <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-xl shadow-xl border-l-4 border-secondary">
                                             <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Izabrano</div>
-                                            <div className="text-2xl font-bold text-primary font-heading">
+                                            <div className="text-2xl font-bold text-primary font-heading flex items-center gap-2">
                                                 {`Stan ${getDynamicApartmentNumber(hovered.id, activeCategory, upperLevel)}`}
                                             </div>
                                             <div className="text-secondary font-medium">
@@ -426,7 +509,7 @@ export default function FloorPlan() {
                             </div>
 
                             {/* Scrollable Content: Room List */}
-                            <div className="p-6 md:p-8 overflow-y-auto flex-1">
+                            <div className="p-6 md:p-8">
                                 <h4 className="font-heading font-semibold text-lg text-primary mb-4 flex items-center gap-2">
                                     <Layers size={20} className="text-secondary" />
                                     Struktura prostorija
