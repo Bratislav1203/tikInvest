@@ -42,9 +42,9 @@ export default function FloorPlan() {
     // Main floor plan images
     const FLOOR_IMAGES = {
         ground: "stanovi/prizemlje.png",
-        level1: "stanovi/sprat1.png",
-        level2: "stanovi/sprat2.png",
-        level3: "stanovi/sprat3.png"
+        level1: "stanovi/sprat1-1.png",
+        level2: "stanovi/sprat1-1.png",
+        level3: "stanovi/sprat1-1.png"
     };
 
     // Current active image based on state
