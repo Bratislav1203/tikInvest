@@ -55,7 +55,7 @@
         "id": "stan2",
         "status": {
             "ground": "reserved",
-            "level1": "available",
+            "level1": "reserved",
             "level2": "available",
             "level3": "available"
         },
